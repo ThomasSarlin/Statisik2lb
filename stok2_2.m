@@ -1,5 +1,3 @@
-(* ::Package:: *)
-
 clear all
 clc
 T=10;
@@ -34,7 +32,6 @@ for j=1:n
     
 end
 
-v=result==50;
 
 
 Mres = mean(result);
@@ -46,6 +43,7 @@ ReLow = Mres - 1.96*SEr;
 
 IntervalRes= [ReLow, Mres, ResUpper]
 
+v=result==50; %check if sold earlier than T=10
 Mprob = mean(v);
 
 SEp = std (v)./sqrt(N);
