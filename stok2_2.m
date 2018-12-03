@@ -1,49 +1,60 @@
-clc, clear all
+(* ::Package:: *)
 
-dt = 0.001; %steglängd
-T = 10; % sluttid
-t=[0:dt:T]; %tid
-n= T/dt; % tid
-N = 1000;% antal försök
+clear all
+clc
+T=10;
+sigma=0.1;
+dt=0.001;
+t=0:dt:T;
+N=T/dt;
+n=1000;
+S0=100;
+r=0.04;
+V=zeros(N+1,n);
 
-expWin=zeros(1,N);
-result=zeros(1,N);
-for j = 1:N
-    X = 100;
-    i = 1;
-    GBM = [];
-    W = [0; cumsum( sqrt(dt).*randn(n,1))]'; %standard brownian motion
-    while (X < 150 && i < n+1)
-        X = 100.*exp((0.04-(0.01)/2)*(dt*i) + 0.1 * W(i));
-        GBM(i) = X;
-        i = i + 1;
-    end
-    expWin(j)=(GBM(i-1));
-    if(i<n+1)
-        result(j)=1;
-    end
+for i=1:n
+    Z=randn(1,N);
+    W=[0,cumsum(sqrt(dt)*Z)];
+    
+    S(:,i) = S0*exp((r-sigma.^2/2).*t+sigma.*W);
 end
 
-mR=mean(result);
-mE=mean(expWin-100);
+plot(t,S)
 
-SEr = std(result)./sqrt(N);
+result=zeros(1,n);
+for j=1:n
+    S(:,j);
+    result(j)=S(N+1,j)-100;
+    for i=1:N+1
+        if(S(i,j)>150)
+            result(j)=50;
+            break;
+        end
+    end
+    
+end
 
-Ur=mR+ 1.96*SEr;
-Lr=mR-1.96*SEr;
+v=result==50;
 
-SEe=std(result)./sqrt(N);
 
-Ue=mE+1.96*SEe;
-Le=mE-1.96*SEe;
-mR
-I95result = [Lr Ur]
+Mres = mean(result);
 
-mE
-I95win = [Le Ue]
+SEr = std (result)./sqrt(N);
 
-t2 = 1:1:length(GBM);
-figure(1)
-plot(t2/1000,GBM)
+ResUpper= Mres + 1.96*SEr;
+ReLow = Mres - 1.96*SEr;
+
+IntervalRes= [ReLow, Mres, ResUpper]
+
+Mprob = mean(v);
+
+SEp = std (v)./sqrt(N);
+
+ProbUpper = Mprob + 1.96*SEp;
+ProbLower= Mprob - 1.96*SEp;
+
+IntervalProb = [ProbLower, Mprob, ProbUpper]
+
+
 
 
